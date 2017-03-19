@@ -4,10 +4,20 @@ import (
     "encoding/json"
     "log"
     "net/http"
+    "database/sql"
+
 
     "github.com/gorilla/mux"
+    "github.com/jinzhu/gorm"
+    _ "github.com/lib/pq"
 )
-
+// "github.com/lib/pq"
+//    "fmt"
+type Patient struct{
+  gorm.Model
+  Gender int
+  Id,Name,Dob,Address string
+}
 type Person struct {
     ID        string   `json:"id,omitempty"`
     Information   *Information `json:"information,omitempty"`
@@ -56,8 +66,8 @@ type YourJson struct {
     }
 }
 */
-var patient []Person
-
+//var patient []Person
+/*
 func GetPersonEndpoint(w http.ResponseWriter, req *http.Request) {
     params := mux.Vars(req)
     for _, item := range patient {
@@ -72,7 +82,7 @@ func GetPersonEndpoint(w http.ResponseWriter, req *http.Request) {
 func GetpatientEndpoint(w http.ResponseWriter, req *http.Request) {
     json.NewEncoder(w).Encode(patient)
 }
-
+*/
 // func CreatePersonEndpoint(w http.ResponseWriter, req *http.Request) {
 //     params := mux.Vars(req)
 //     var person Person
@@ -94,6 +104,30 @@ func GetpatientEndpoint(w http.ResponseWriter, req *http.Request) {
 // }
 
 func main() {
+  // Connect to the "bank" database.
+  	db, err := sql.Open("postgres", "postgresql://janitor_dev@ip-172-31-6-7.us-west-2.compute.internal:26257?sslcert=/home/ubuntu/certs/janitor_dev.cert&sslkey=/home/ubuntu/certs/janitor_dev.key")
+  	if err != nil {
+  		log.Fatalf("error connection to the database: %s", err)
+  	}
+
+    var patient Patient
+    db.First(&patient,"id=?", "M83Y2uPNX5p4zgBUTCV0")
+/*
+    rows, err := db.Query("SELECT * FROM nwhacks.patients")
+  	if err != nil {
+  		log.Fatal(err)
+  	}
+    defer rows.Close()
+  	fmt.Println("Initial balances:")
+  	for rows.Next() {
+  		var gender int
+      var id, name, dob, address string
+  		if err := rows.Scan(&id, &name, &dob, &gender, &address); err != nil {
+  			log.Fatal(err)
+  		}
+  		fmt.Printf("%s %s %s %d %s\n", id, name, dob, gender, address);
+  	}
+    */
     router := mux.NewRouter()
     patient = append(patient, Person{
       ID: "1",
