@@ -12,7 +12,7 @@ type Person struct {
     ID        string   `json:"id,omitempty"`
     Information   *Information `json:"information,omitempty"`
     Emergencycontact  *Emergencycontact   `json:"emergencycontact,omitempty"`
-    HistoryArray *HistoryArray `json:"historyarray,omitempty"`
+    HistoryArray []HistoryInfo `json:"historyarray,omitempty"`
 }
 
 type Information struct {
@@ -95,11 +95,17 @@ func GetpatientEndpoint(w http.ResponseWriter, req *http.Request) {
 
 func main() {
     router := mux.NewRouter()
-    patient = append(patient, Person{ID: "1", Information: &Information{Fullname: "Jacky Chao", Gender: "M",
-      Address: "1234 UBC w.e.", Birth: &Birth{Day: 12, Month: 9, Year: 1993}},
+    patient = append(patient, Person{
+      ID: "1",
+      Information: &Information{Fullname: "Jacky Chao", Gender: "M", Address: "1234 UBC w.e.", Birth: &Birth{Day: 12, Month: 9, Year: 1993}},
       Emergencycontact: &Emergencycontact{Econtact: "Carlson Chan", Phone: "123-456-7890"},
-      HistoryArray: &HistoryInfo {HospitalName: ""}})
-    //router.HandleFunc("/patient", GetpatientEndpoint).Methods("GET")
+
+      // TODO: Fix this
+      // HistoryArray: &HistoryInfo {HospitalName: ""}
+      // HistoryArray: HistoryArray{Collection: a [10]&HistoryInfo}
+      // HistoryArray: [1]HistoryInfo{&HospitalName: ""},
+    })
+    // router.HandleFunc("/patient", GetpatientEndpoint).Methods("GET")
     router.HandleFunc("/patient/{id}", GetPersonEndpoint).Methods("GET")
     log.Fatal(http.ListenAndServe(":12345", router))
 }
