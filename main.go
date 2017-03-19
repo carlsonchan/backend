@@ -4,17 +4,15 @@ import (
     "encoding/json"
     "log"
     "net/http"
-    "database/sql"
+    //"database/sql"
 
-
+    // "fmt"
     "github.com/gorilla/mux"
     "github.com/jinzhu/gorm"
     _ "github.com/lib/pq"
 )
-// "github.com/lib/pq"
-//    "fmt"
+
 type Patient struct{
-  gorm.Model
   Gender int
   Id,Name,Dob,Address string
 }
@@ -66,23 +64,28 @@ type YourJson struct {
     }
 }
 */
-//var patient []Person
-/*
-func GetPersonEndpoint(w http.ResponseWriter, req *http.Request) {
+var patient []Person
+
+
+func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
     params := mux.Vars(req)
-    for _, item := range patient {
-        if item.ID == params["id"] {
-            json.NewEncoder(w).Encode(item)
-            return
-        }
+
+    db, err := gorm.Open("postgres", "postgresql://janitor_dev@ip-172-31-6-7.us-west-2.compute.internal:26257?sslcert=/home/ubuntu/certs/janitor_dev.cert&sslkey=/home/ubuntu/certs/janitor_dev.key")
+    if err != nil {
+      log.Fatalf("error connection to the database: %s", err)
     }
-    json.NewEncoder(w).Encode(&Person{})
+
+    var pat Patient
+    db.Table("nwhacks.patients").Where("id = ?", params["id"]).Find(&pat)
+
+
+    // fmt.Printf("%d", item.ID)
+    // fmt.Printf("%s", pat.Id)
+    json.NewEncoder(w).Encode(pat)
+     defer db.Close()
+    // json.NewEncoder(w).Encode(patient)
 }
 
-func GetpatientEndpoint(w http.ResponseWriter, req *http.Request) {
-    json.NewEncoder(w).Encode(patient)
-}
-*/
 // func CreatePersonEndpoint(w http.ResponseWriter, req *http.Request) {
 //     params := mux.Vars(req)
 //     var person Person
@@ -104,31 +107,11 @@ func GetpatientEndpoint(w http.ResponseWriter, req *http.Request) {
 // }
 
 func main() {
-  // Connect to the "bank" database.
-  	db, err := sql.Open("postgres", "postgresql://janitor_dev@ip-172-31-6-7.us-west-2.compute.internal:26257?sslcert=/home/ubuntu/certs/janitor_dev.cert&sslkey=/home/ubuntu/certs/janitor_dev.key")
-  	if err != nil {
-  		log.Fatalf("error connection to the database: %s", err)
-  	}
 
-    var patient Patient
-    db.First(&patient,"id=?", "M83Y2uPNX5p4zgBUTCV0")
-/*
-    rows, err := db.Query("SELECT * FROM nwhacks.patients")
-  	if err != nil {
-  		log.Fatal(err)
-  	}
-    defer rows.Close()
-  	fmt.Println("Initial balances:")
-  	for rows.Next() {
-  		var gender int
-      var id, name, dob, address string
-  		if err := rows.Scan(&id, &name, &dob, &gender, &address); err != nil {
-  			log.Fatal(err)
-  		}
-  		fmt.Printf("%s %s %s %d %s\n", id, name, dob, gender, address);
-  	}
-    */
+   
     router := mux.NewRouter()
+    /*
+
     patient = append(patient, Person{
       ID: "1",
       Information: &Information{Fullname: "Jacky Chao", Gender: "M", Address: "1234 UBC w.e.", Birth: &Birth{Day: 12, Month: 9, Year: 1993}},
@@ -139,7 +122,9 @@ func main() {
       // HistoryArray: HistoryArray{Collection: a [10]&HistoryInfo}
       // HistoryArray: [1]HistoryInfo{&HospitalName: ""},
     })
+
+  */
     // router.HandleFunc("/patient", GetpatientEndpoint).Methods("GET")
-    router.HandleFunc("/patient/{id}", GetPersonEndpoint).Methods("GET")
-    log.Fatal(http.ListenAndServe(":12345", router))
+    router.HandleFunc("/patient/{id}", GetPatientEndpoint).Methods("GET")
+    log.Fatal(http.ListenAndServe(":8787", router))
 }
