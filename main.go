@@ -4,6 +4,7 @@ import (
     "encoding/json"
     "log"
     "net/http"
+    "strings"
     //"database/sql"
 
     // "fmt"
@@ -75,13 +76,34 @@ func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
       log.Fatalf("error connection to the database: %s", err)
     }
 
-    var pat Patient
-    db.Table("nwhacks.patients").Where("id = ?", params["id"]).Find(&pat)
+    var raw_pat Patient
+    db.Table("nwhacks.patients").Where("id = ?", params["id"]).Find(&raw_pat)
 
+    var gen string
+    if(raw_pat == 0){
+      gen = "M"
+    }
+    else if(raw_pat == 1){
+      gen = "F"
+    }
+    else{
+      gen = "O"
+    }
+
+    var DateStr string
+    t, err := time.Parse(raw_pat, "2011-01-19")
+    fmt.Printf("%s", t)
+    fmt.Printf("%s", err)
+
+
+    ymd
+    var patient Person
+    patient = append(patient, Person{ID: raw_pat.Id,
+      Information &Information{Fullname: raw_pat.Name, Gender: gen, Address: raw_pat.Address, Birth &Birth }})
 
     // fmt.Printf("%d", item.ID)
     // fmt.Printf("%s", pat.Id)
-    json.NewEncoder(w).Encode(pat)
+    json.NewEncoder(w).Encode(raw_pat)
      defer db.Close()
     // json.NewEncoder(w).Encode(patient)
 }
@@ -108,7 +130,7 @@ func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 
 func main() {
 
-   
+
     router := mux.NewRouter()
     /*
 
