@@ -4,12 +4,21 @@ Golang backend server which manages operations concerning data retrieval and sto
 
 ## Setup
 
+First, an instance of the [Lifeband CockroachDB database](https://github.com/nwHacks2017/database) must already be running.
+
 Setup the dependencies:
 ```
 go get -u github.com/gorilla/mux
 go get -u github.com/jinzhu/gorm
 go get -u github.com/lib/pq
 ```
+
+Create a configuration file:
+```
+cp config.json.template config.json
+```
+
+Fill in the server port, current user, and database details in `config.json`.
 
 Build the server:
 ```

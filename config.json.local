@@ -1,0 +1,9 @@
+{
+    "database": {
+        "ip": "localhost",
+        "port": "26257",
+        "user": "janitor_dev"
+    },
+    "osUser": "YOUR_USER_HERE",
+    "port": "8787"
+}

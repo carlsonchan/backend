@@ -8,9 +8,18 @@ import (
 	_ "github.com/lib/pq"
 	"log"
 	"net/http"
+	"os"
 	_ "strings"
 	"time"
 )
+
+type ConfigDatabase struct {
+	User, Ip, Port string
+}
+type Config struct {
+	Port, OsUser string
+	Database     ConfigDatabase
+}
 
 type Patient struct {
 	Id, Name, Address string
@@ -46,29 +55,36 @@ type Person struct {
 	HistoryArray      []HistoryInfo      `json:"historyarray,omitempty"`
 }
 
-const port string = "8787"
-
-const osUser string = "jleung"
-const dbUser string = "janitor_dev"
-const dbIp string = "localhost"
-const dbPort string = "26257"
-
+var config Config
 var database *gorm.DB
 
+func InitializeConfiguration() {
+	file, err := os.Open("config.json")
+	if err != nil {
+		log.Fatalf("Error opening the configuration file: ", err)
+	}
+
+	err = json.NewDecoder(file).Decode(&config)
+	if err != nil {
+		log.Fatalf("Error reading the configuration file: ", err)
+	}
+}
+
 func InitializeDbConnection() *gorm.DB {
-	const sslCertLocation = "/home/" + osUser +
+	sslCertLocation := "/home/" + config.OsUser +
 		"/cockroach/certs/janitor_dev.cert"
-	const sslKeyLocation = "/home/" + osUser +
+	sslKeyLocation := "/home/" + config.OsUser +
 		"/cockroach/certs/janitor_dev.key"
 
-	dbConnection := "postgresql://" + dbUser + "@" + dbIp + ":" + dbPort +
+	dbConnection := "postgresql://" + config.Database.User + "@" +
+		config.Database.Ip + ":" + config.Database.Port +
 		"/NWHACKS?sslcert=" + sslCertLocation +
 		"&sslkey=" + sslKeyLocation +
 		"&parseTime=true"
 
 	db, err := gorm.Open("postgres", dbConnection)
 	if err != nil {
-		log.Fatalf("error connection to the database: %s", err)
+		log.Fatalf("Error connection to the database: %s", err)
 	}
 	return db
 }
@@ -116,6 +132,9 @@ func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 func main() {
 	log.Print("Initializing server.")
 
+	log.Print("Initializing configuration.")
+	InitializeConfiguration()
+
 	log.Print("Initializing database connection.")
 	database = InitializeDbConnection()
 	defer database.Close()
@@ -123,6 +142,6 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/patient/{id}", GetPatientEndpoint).Methods("GET")
 
-	log.Print("Starting server on port " + port + ".")
-	log.Fatal(http.ListenAndServe(":"+port, router))
+	log.Print("Starting server on port " + config.Port + ".")
+	log.Fatal(http.ListenAndServe(":"+config.Port, router))
 }

@@ -1,0 +1,9 @@
+{
+    "database": {
+        "ip": "",
+        "port": "",
+        "user": ""
+    },
+    "osUser": "",
+    "port": ""
+}
