@@ -90,7 +90,10 @@ func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 
 	var rawPatient Patient
-	result := database.Table("patients").Where("id = ?", params["id"]).Find(&rawPatient)
+	result := database.
+		Table("patients").
+		Where("id = ?", params["id"]).
+		Find(&rawPatient)
 	if result.RecordNotFound() {
 		log.Print("Patient " + params["id"] + " not found.")
 		w.WriteHeader(http.StatusNotFound)
@@ -113,7 +116,10 @@ func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 	}
 
 	var contactList []EmergencyContact
-	database.Table("emergency_contacts").Where("pid = ?", rawPatient.Id).Find(&contactList)
+	database.
+		Table("emergency_contacts").
+		Where("pid = ?", rawPatient.Id).
+		Find(&contactList)
 
 	patient := Person{
 		ID: rawPatient.Id,
