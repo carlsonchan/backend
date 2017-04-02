@@ -45,12 +45,24 @@ type Person struct {
 	HistoryArray      []HistoryInfo      `json:"historyarray,omitempty"`
 }
 
+const osUser string = "jleung"
+const dbUser string = "janitor_dev"
+const dbIp string = "localhost"
+const dbPort string = "26257"
+
 var patient []Person
 
 func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 
-	db, err := gorm.Open("postgres", "postgresql://janitor_dev@ip-172-31-6-7.us-west-2.compute.internal:26257/NWHACKS?sslcert=/home/ubuntu/certs/janitor_dev.cert&sslkey=/home/ubuntu/certs/janitor_dev.key")
+	const sslCertLocation = "/home/" + osUser +
+		"/cockroach/certs/janitor_dev.cert"
+	const sslKeyLocation = "/home/" + osUser +
+		"/cockroach/certs/janitor_dev.key"
+	dbConnection := "postgresql://" + dbUser + "@" + dbIp + ":" + dbPort +
+		"/NWHACKS?sslcert=" + sslCertLocation +
+		"&sslkey=" + sslKeyLocation
+	db, err := gorm.Open("postgres", dbConnection)
 	if err != nil {
 		log.Fatalf("error connection to the database: %s", err)
 	}
