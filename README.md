@@ -18,5 +18,5 @@ go build
 
 Run the built executable:
 ```
-./main
+./backend
 ```
