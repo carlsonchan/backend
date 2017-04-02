@@ -21,8 +21,8 @@ func InitializeDbConnection() *gorm.DB {
 	return db
 }
 
-func GetPatientById(id string) (Patient, *gorm.DB) {
-	var patient Patient
+func GetPatientById(id string) (DatabasePatient, *gorm.DB) {
+	var patient DatabasePatient
 	result := database.
 		Table("patients").
 		Where("id = ?", id).
@@ -30,9 +30,9 @@ func GetPatientById(id string) (Patient, *gorm.DB) {
 	return patient, result
 }
 
-func GetEmergencyContactsByPatientId(id string) ([]EmergencyContact, *gorm.DB) {
+func GetEmergencyContactsByPatientId(id string) ([]DatabaseEmergencyContact, *gorm.DB) {
 
-	var emergencyContacts []EmergencyContact
+	var emergencyContacts []DatabaseEmergencyContact
 	result := database.
 		Table("emergency_contacts").
 		Where("pid = ?", id).

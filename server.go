@@ -31,7 +31,7 @@ func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 		gender = "O"
 	}
 
-	birth := &Birth{
+	birth := &BirthView{
 		Month: int(rawPatient.Dob.Month()),
 		Day:   int(rawPatient.Dob.Day()),
 		Year:  rawPatient.Dob.Year(),
@@ -39,15 +39,20 @@ func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 
 	contactList, _ := GetEmergencyContactsByPatientId(params["id"])
 
-	patient := Person{
+	var contactViewList []EmergencyContactView
+	for i := 0; i < len(contactList); i++ {
+		contactViewList = append(contactViewList, contactList[i].toView())
+	}
+
+	patient := PersonView{
 		ID: rawPatient.Id,
-		Information: &Information{
+		Information: &InformationView{
 			Fullname: rawPatient.Name,
 			Gender:   gender,
 			Address:  rawPatient.Address,
 			Birth:    birth,
 		},
-		EmergencyContacts: contactList,
+		EmergencyContacts: contactViewList,
 	}
 
 	json.NewEncoder(w).Encode(patient)
