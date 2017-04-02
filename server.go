@@ -50,8 +50,6 @@ const dbUser string = "janitor_dev"
 const dbIp string = "localhost"
 const dbPort string = "26257"
 
-var patient []Person
-
 func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 
@@ -95,7 +93,7 @@ func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 	db.Find(&contactList)
 	db.Table("NWHACKS.emergency_contacts").Where("pid = ?", rawPatient.Id).Find(&contact)
 
-	patient := Person {
+	patient := Person{
 		ID: rawPatient.Id,
 		Information: &Information{
 			Fullname: rawPatient.Name,
@@ -109,44 +107,8 @@ func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(patient)
 }
 
-// func CreatePersonEndpoint(w http.ResponseWriter, req *http.Request) {
-//     params := mux.Vars(req)
-//     var person Person
-//     _ = json.NewDecoder(req.Body).Decode(&person)
-//     person.ID = params["id"]
-//     patient = append(patient, person)
-//     json.NewEncoder(w).Encode(patient)
-// }
-
-// func DeletePersonEndpoint(w http.ResponseWriter, req *http.Request) {
-//     params := mux.Vars(req)
-//     for index, item := range patient {
-//         if item.ID == params["id"] {
-//             patient = append(patient[:index], patient[index+1:]...)
-//             break
-//         }
-//     }
-//     json.NewEncoder(w).Encode(patient)
-// }
-
 func main() {
-
 	router := mux.NewRouter()
-	/*
-
-	   patient = append(patient, Person{
-	     ID: "1",
-	     Information: &Information{Fullname: "Jacky Chao", Gender: "M", Address: "1234 UBC w.e.", Birth: &Birth{Day: 12, Month: 9, Year: 1993}},
-	     Emergencycontact: &Emergencycontact{Econtact: "Carlson Chan", Phone: "123-456-7890"},
-
-	     // TODO: Fix this
-	     // HistoryArray: &HistoryInfo {HospitalName: ""}
-	     // HistoryArray: HistoryArray{Collection: a [10]&HistoryInfo}
-	     // HistoryArray: [1]HistoryInfo{&HospitalName: ""},
-	   })
-
-	*/
-	// router.HandleFunc("/patient", GetpatientEndpoint).Methods("GET")
 	router.HandleFunc("/patient/{id}", GetPatientEndpoint).Methods("GET")
 	log.Fatal(http.ListenAndServe(":8787", router))
 }
