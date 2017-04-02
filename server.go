@@ -119,7 +119,9 @@ func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
+	log.Print("Initializing server.")
 
+	log.Print("Initializing database connection.")
 	database = InitializeDbConnection()
 	defer database.Close()
 
