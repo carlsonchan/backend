@@ -6,6 +6,11 @@ Golang backend server which manages operations concerning data retrieval and sto
 
 First, an instance of the [Lifeband CockroachDB database](https://github.com/nwHacks2017/database) must already be running.
 
+Navigate to the directory with the source files:
+```
+cd backend/
+```
+
 Setup the dependencies:
 ```
 go get -u github.com/gorilla/mux
