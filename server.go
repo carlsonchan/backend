@@ -13,8 +13,9 @@ import (
 )
 
 type Patient struct {
-	Gender                 int
-	Id, Name, Dob, Address string
+	Id, Name, Address string
+	Gender            int
+	Dob               time.Time
 }
 
 type Birth struct {
@@ -63,7 +64,9 @@ func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 		"/cockroach/certs/janitor_dev.key"
 	dbConnection := "postgresql://" + dbUser + "@" + dbIp + ":" + dbPort +
 		"/NWHACKS?sslcert=" + sslCertLocation +
-		"&sslkey=" + sslKeyLocation
+		"&sslkey=" + sslKeyLocation +
+		"&parseTime=true"
+
 	db, err := gorm.Open("postgres", dbConnection)
 	if err != nil {
 		log.Fatalf("error connection to the database: %s", err)
@@ -82,11 +85,10 @@ func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 		gender = "O"
 	}
 
-	birthTime, err := time.Parse(rawPatient.Dob, "2011-01-19")
 	birth := &Birth{
-		Month: int(birthTime.Month()),
-		Day:   int(birthTime.Day()),
-		Year:  birthTime.Year(),
+		Month: int(rawPatient.Dob.Month()),
+		Day:   int(rawPatient.Dob.Day()),
+		Year:  rawPatient.Dob.Year(),
 	}
 
 	var contact EmergencyContact
@@ -116,5 +118,5 @@ func main() {
 	router.HandleFunc("/patient/{id}", GetPatientEndpoint).Methods("GET")
 
 	log.Print("Starting server on port " + port + ".")
-	log.Fatal(http.ListenAndServe(":" + port, router))
+	log.Fatal(http.ListenAndServe(":"+port, router))
 }
