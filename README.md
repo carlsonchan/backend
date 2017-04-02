@@ -18,7 +18,7 @@ Create a configuration file:
 cp config.json.template config.json
 ```
 
-Fill in the server port, current user, and database details in `config.json`.
+Fill in the server port, current user, and database details in `config.json`. You will need to retrieve and store the SSL certificate and key of the database user to connect to.
 
 Build the server:
 ```
