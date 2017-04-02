@@ -1,24 +1,29 @@
 package main
 
 import (
+	"errors"
 	"github.com/jinzhu/gorm"
 	"log"
 )
 
 var database *gorm.DB
 
-func InitializeDbConnection() *gorm.DB {
+func InitializeDbConnection() {
 	dbConnection := "postgresql://" + config.Database.User + "@" +
 		config.Database.Ip + ":" + config.Database.Port +
 		"/NWHACKS?sslcert=" + config.Database.SslCertLocation +
 		"&sslkey=" + config.Database.SslKeyLocation +
 		"&parseTime=true"
 
-	db, err := gorm.Open("postgres", dbConnection)
+	err := errors.New("")
+	database, err = gorm.Open("postgres", dbConnection)
 	if err != nil {
 		log.Fatalf("Error connection to the database: %s", err)
 	}
-	return db
+}
+
+func CloseDbConnection() {
+	database.Close()
 }
 
 func GetPatientById(id string) (DatabasePatient, *gorm.DB) {

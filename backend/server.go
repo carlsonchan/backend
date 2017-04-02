@@ -65,8 +65,8 @@ func main() {
 	InitializeConfiguration()
 
 	log.Print("Initializing database connection.")
-	database = InitializeDbConnection()
-	defer database.Close()
+	InitializeDbConnection()
+	defer CloseDbConnection()
 
 	router := mux.NewRouter()
 	router.HandleFunc("/patient/{id}", GetPatientEndpoint).Methods("GET")
