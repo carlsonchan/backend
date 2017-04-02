@@ -1,44 +1,44 @@
 package main
 
 import (
-    "encoding/json"
-    "log"
-    "net/http"
-    _ "strings"
-   "time"
-    //"database/sql"
+	"encoding/json"
+	"log"
+	"net/http"
+	_ "strings"
+	"time"
+	//"database/sql"
 
-    _ "fmt"
-    "github.com/gorilla/mux"
-    "github.com/jinzhu/gorm"
-    _ "github.com/lib/pq"
+	_ "fmt"
+	"github.com/gorilla/mux"
+	"github.com/jinzhu/gorm"
+	_ "github.com/lib/pq"
 )
 
-type Patient struct{
-  Gender int
-  Id,Name,Dob,Address string
+type Patient struct {
+	Gender                 int
+	Id, Name, Dob, Address string
 }
-type EmergencyContact struct{
-  Id, Pid, Name, Phone string
+type EmergencyContact struct {
+	Id, Pid, Name, Phone string
 }
 type Person struct {
-    ID        string   `json:"id,omitempty"`
-    Information   *Information `json:"information,omitempty"`
-    EmergencyContacts  []EmergencyContact   `json:"emergency_contacts,omitempty"`
-    HistoryArray []HistoryInfo `json:"historyarray,omitempty"`
+	ID                string             `json:"id,omitempty"`
+	Information       *Information       `json:"information,omitempty"`
+	EmergencyContacts []EmergencyContact `json:"emergency_contacts,omitempty"`
+	HistoryArray      []HistoryInfo      `json:"historyarray,omitempty"`
 }
 
 type Information struct {
-    Fullname string   `json:"fullname,omitempty"`
-    Gender string   `json:"gender,omitempty"`
-    Address string   `json:"address,omitempty"`
-    Birth   *Birth `json:"birth,omitempty"`
+	Fullname string `json:"fullname,omitempty"`
+	Gender   string `json:"gender,omitempty"`
+	Address  string `json:"address,omitempty"`
+	Birth    *Birth `json:"birth,omitempty"`
 }
 
 type Birth struct {
-  Month int `json:"month,omitempty"`
-  Day int `json:"day,omitempty"`
-  Year int `json:"year,omitempty"`
+	Month int `json:"month,omitempty"`
+	Day   int `json:"day,omitempty"`
+	Year  int `json:"year,omitempty"`
 }
 
 // type Emergencycontact struct {
@@ -46,13 +46,14 @@ type Birth struct {
 //   Phone string   `json:"phone,omitempty"`
 // }
 
-type HistoryArray struct{
-  Collection []HistoryInfo `json:"historyarray"`
+type HistoryArray struct {
+	Collection []HistoryInfo `json:"historyarray"`
 }
 
 type HistoryInfo struct {
-    HospitalName string `json:"hospitalname"`
+	HospitalName string `json:"hospitalname"`
 }
+
 /*
 type PublicKey struct {
     Id int
@@ -71,63 +72,61 @@ type YourJson struct {
 */
 var patient []Person
 
-
 func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
-    params := mux.Vars(req)
+	params := mux.Vars(req)
 
-    // db, err := gorm.Open("postgres", "host=ip-172-31-6-7.us-west-2.compute.internal:26257 user=janitor_dev dbname=nwhacks sslmode=enable sslcert=/home/ubuntu/certs/janitor_dev.cert sslkey=/home/ubuntu/certs/janitor_dev.key")
+	// db, err := gorm.Open("postgres", "host=ip-172-31-6-7.us-west-2.compute.internal:26257 user=janitor_dev dbname=nwhacks sslmode=enable sslcert=/home/ubuntu/certs/janitor_dev.cert sslkey=/home/ubuntu/certs/janitor_dev.key")
 
-    db, err := gorm.Open("postgres", "postgresql://janitor_dev@ip-172-31-6-7.us-west-2.compute.internal:26257/NWHACKS?sslcert=/home/ubuntu/certs/janitor_dev.cert&sslkey=/home/ubuntu/certs/janitor_dev.key")
-    if err != nil {
-      log.Fatalf("error connection to the database: %s", err)
-    }
+	db, err := gorm.Open("postgres", "postgresql://janitor_dev@ip-172-31-6-7.us-west-2.compute.internal:26257/NWHACKS?sslcert=/home/ubuntu/certs/janitor_dev.cert&sslkey=/home/ubuntu/certs/janitor_dev.key")
+	if err != nil {
+		log.Fatalf("error connection to the database: %s", err)
+	}
 
-    var raw_pat Patient
-    db.Table("patients").Where("id = ?", params["id"]).Find(&raw_pat)
+	var raw_pat Patient
+	db.Table("patients").Where("id = ?", params["id"]).Find(&raw_pat)
 
-    var gen string
-    if(raw_pat.Gender == 0){
-      gen = "M"
-    } else if(raw_pat.Gender == 1){
-      gen = "F"
-    } else {
-      gen = "O"
-    }
+	var gen string
+	if raw_pat.Gender == 0 {
+		gen = "M"
+	} else if raw_pat.Gender == 1 {
+		gen = "F"
+	} else {
+		gen = "O"
+	}
 
-    t, err := time.Parse(raw_pat.Dob, "2011-01-19")
-    birth := &Birth{
-          Month: int(t.Month()),
-          Day: int(t.Day()),
-          Year: t.Year(),
-        }
+	t, err := time.Parse(raw_pat.Dob, "2011-01-19")
+	birth := &Birth{
+		Month: int(t.Month()),
+		Day:   int(t.Day()),
+		Year:  t.Year(),
+	}
 
-    var emer EmergencyContact
-    var emers []EmergencyContact
-    // db.Table("nwhacks.patients").Where("id = ?", params["id"]).Find(&pat)
-    // db.Model(&pat).Related(&emer, "EmergencyContact")
-    
-    db.Find(&emers)
-    db.Table("NWHACKS.emergency_contacts").Where("pid = ?", raw_pat.Id).Find(&emer)
+	var emer EmergencyContact
+	var emers []EmergencyContact
+	// db.Table("nwhacks.patients").Where("id = ?", params["id"]).Find(&pat)
+	// db.Model(&pat).Related(&emer, "EmergencyContact")
 
-    var patient Person
+	db.Find(&emers)
+	db.Table("NWHACKS.emergency_contacts").Where("pid = ?", raw_pat.Id).Find(&emer)
 
-    patient = Person{ID: raw_pat.Id,
-      Information: &Information{
-        Fullname: raw_pat.Name,
-        Gender: gen,
-        Address: raw_pat.Address,
-        Birth: birth,
-        },
-        EmergencyContacts: emers,
+	var patient Person
 
-      }
+	patient = Person{ID: raw_pat.Id,
+		Information: &Information{
+			Fullname: raw_pat.Name,
+			Gender:   gen,
+			Address:  raw_pat.Address,
+			Birth:    birth,
+		},
+		EmergencyContacts: emers,
+	}
 
-    // // fmt.Printf("%d", item.ID)
-    // // fmt.Printf("%s", pat.Id)
-    json.NewEncoder(w).Encode(patient)
-    // json.NewEncoder(w).Encode(emer)
-     defer db.Close()
-    // json.NewEncoder(w).Encode(patient)
+	// // fmt.Printf("%d", item.ID)
+	// // fmt.Printf("%s", pat.Id)
+	json.NewEncoder(w).Encode(patient)
+	// json.NewEncoder(w).Encode(emer)
+	defer db.Close()
+	// json.NewEncoder(w).Encode(patient)
 }
 
 // func CreatePersonEndpoint(w http.ResponseWriter, req *http.Request) {
@@ -152,23 +151,22 @@ func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 
 func main() {
 
+	router := mux.NewRouter()
+	/*
 
-    router := mux.NewRouter()
-    /*
+	   patient = append(patient, Person{
+	     ID: "1",
+	     Information: &Information{Fullname: "Jacky Chao", Gender: "M", Address: "1234 UBC w.e.", Birth: &Birth{Day: 12, Month: 9, Year: 1993}},
+	     Emergencycontact: &Emergencycontact{Econtact: "Carlson Chan", Phone: "123-456-7890"},
 
-    patient = append(patient, Person{
-      ID: "1",
-      Information: &Information{Fullname: "Jacky Chao", Gender: "M", Address: "1234 UBC w.e.", Birth: &Birth{Day: 12, Month: 9, Year: 1993}},
-      Emergencycontact: &Emergencycontact{Econtact: "Carlson Chan", Phone: "123-456-7890"},
+	     // TODO: Fix this
+	     // HistoryArray: &HistoryInfo {HospitalName: ""}
+	     // HistoryArray: HistoryArray{Collection: a [10]&HistoryInfo}
+	     // HistoryArray: [1]HistoryInfo{&HospitalName: ""},
+	   })
 
-      // TODO: Fix this
-      // HistoryArray: &HistoryInfo {HospitalName: ""}
-      // HistoryArray: HistoryArray{Collection: a [10]&HistoryInfo}
-      // HistoryArray: [1]HistoryInfo{&HospitalName: ""},
-    })
-
-  */
-    // router.HandleFunc("/patient", GetpatientEndpoint).Methods("GET")
-    router.HandleFunc("/patient/{id}", GetPatientEndpoint).Methods("GET")
-    log.Fatal(http.ListenAndServe(":8787", router))
+	*/
+	// router.HandleFunc("/patient", GetpatientEndpoint).Methods("GET")
+	router.HandleFunc("/patient/{id}", GetPatientEndpoint).Methods("GET")
+	log.Fatal(http.ListenAndServe(":8787", router))
 }
