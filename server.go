@@ -45,12 +45,16 @@ type Person struct {
 	HistoryArray      []HistoryInfo      `json:"historyarray,omitempty"`
 }
 
+const port string = "8787"
+
 const osUser string = "jleung"
 const dbUser string = "janitor_dev"
 const dbIp string = "localhost"
 const dbPort string = "26257"
 
 func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
+	log.Print("Mapped " + req.Method + " " + req.URL.Path)
+
 	params := mux.Vars(req)
 
 	const sslCertLocation = "/home/" + osUser +
@@ -110,5 +114,7 @@ func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/patient/{id}", GetPatientEndpoint).Methods("GET")
-	log.Fatal(http.ListenAndServe(":8787", router))
+
+	log.Print("Starting server on port " + port + ".")
+	log.Fatal(http.ListenAndServe(":" + port, router))
 }
