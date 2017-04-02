@@ -96,13 +96,8 @@ func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 		Year:  rawPatient.Dob.Year(),
 	}
 
-	var contact EmergencyContact
 	var contactList []EmergencyContact
-	// database.Table("nwhacks.patients").Where("id = ?", params["id"]).Find(&pat)
-	// database.Model(&pat).Related(&emer, "EmergencyContact")
-
-	database.Find(&contactList)
-	database.Table("NWHACKS.emergency_contacts").Where("pid = ?", rawPatient.Id).Find(&contact)
+	database.Table("emergency_contacts").Where("pid = ?", rawPatient.Id).Find(&contactList)
 
 	patient := Person{
 		ID: rawPatient.Id,
