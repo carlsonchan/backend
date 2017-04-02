@@ -2,8 +2,9 @@
     "database": {
         "ip": "localhost",
         "port": "26257",
+        "sslCertLocation": "CERT_LOCATION_HERE",
+        "sslKeyLocation": "KEY_LOCATION_HERE",
         "user": "janitor_dev"
     },
-    "osUser": "YOUR_USER_HERE",
     "port": "8787"
 }

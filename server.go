@@ -14,7 +14,7 @@ import (
 )
 
 type ConfigDatabase struct {
-	User, Ip, Port string
+	User, Ip, Port, SslCertLocation, SslKeyLocation string
 }
 type Config struct {
 	Port, OsUser string
@@ -71,15 +71,10 @@ func InitializeConfiguration() {
 }
 
 func InitializeDbConnection() *gorm.DB {
-	sslCertLocation := "/home/" + config.OsUser +
-		"/cockroach/certs/janitor_dev.cert"
-	sslKeyLocation := "/home/" + config.OsUser +
-		"/cockroach/certs/janitor_dev.key"
-
 	dbConnection := "postgresql://" + config.Database.User + "@" +
 		config.Database.Ip + ":" + config.Database.Port +
-		"/NWHACKS?sslcert=" + sslCertLocation +
-		"&sslkey=" + sslKeyLocation +
+		"/NWHACKS?sslcert=" + config.Database.SslCertLocation +
+		"&sslkey=" + config.Database.SslKeyLocation +
 		"&parseTime=true"
 
 	db, err := gorm.Open("postgres", dbConnection)

@@ -2,8 +2,9 @@
     "database": {
         "ip": "",
         "port": "",
+        "sslCertLocation": "",
+        "sslKeyLocation": "",
         "user": ""
     },
-    "osUser": "",
     "port": ""
 }
