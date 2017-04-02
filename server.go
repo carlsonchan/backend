@@ -90,7 +90,12 @@ func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 
 	var rawPatient Patient
-	database.Table("patients").Where("id = ?", params["id"]).Find(&rawPatient)
+	result := database.Table("patients").Where("id = ?", params["id"]).Find(&rawPatient)
+	if result.RecordNotFound() {
+		log.Print("Patient " + params["id"] + " not found.")
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 
 	var gender string
 	if rawPatient.Gender == 0 {
