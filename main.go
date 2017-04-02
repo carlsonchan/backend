@@ -2,30 +2,25 @@ package main
 
 import (
 	"encoding/json"
-	"log"
-	"net/http"
-	_ "strings"
-	"time"
-	//"database/sql"
-
 	_ "fmt"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
+	"log"
+	"net/http"
+	_ "strings"
+	"time"
 )
 
 type Patient struct {
 	Gender                 int
 	Id, Name, Dob, Address string
 }
-type EmergencyContact struct {
-	Id, Pid, Name, Phone string
-}
-type Person struct {
-	ID                string             `json:"id,omitempty"`
-	Information       *Information       `json:"information,omitempty"`
-	EmergencyContacts []EmergencyContact `json:"emergency_contacts,omitempty"`
-	HistoryArray      []HistoryInfo      `json:"historyarray,omitempty"`
+
+type Birth struct {
+	Month int `json:"month,omitempty"`
+	Day   int `json:"day,omitempty"`
+	Year  int `json:"year,omitempty"`
 }
 
 type Information struct {
@@ -35,98 +30,71 @@ type Information struct {
 	Birth    *Birth `json:"birth,omitempty"`
 }
 
-type Birth struct {
-	Month int `json:"month,omitempty"`
-	Day   int `json:"day,omitempty"`
-	Year  int `json:"year,omitempty"`
-}
-
-// type Emergencycontact struct {
-//   Econtact string   `json:"econtact,omitempty"`
-//   Phone string   `json:"phone,omitempty"`
-// }
-
-type HistoryArray struct {
-	Collection []HistoryInfo `json:"historyarray"`
+type EmergencyContact struct {
+	Id, Pid, Name, Phone string
 }
 
 type HistoryInfo struct {
 	HospitalName string `json:"hospitalname"`
 }
 
-/*
-type PublicKey struct {
-    Id int
-    Key string
+type Person struct {
+	ID                string             `json:"id,omitempty"`
+	Information       *Information       `json:"information,omitempty"`
+	EmergencyContacts []EmergencyContact `json:"emergency_contacts,omitempty"`
+	HistoryArray      []HistoryInfo      `json:"historyarray,omitempty"`
 }
 
-type KeysResponse struct {
-    Collection []PublicKey
-}
-
-type YourJson struct {
-    YourSample []struct {
-        data map[string]string
-    }
-}
-*/
 var patient []Person
 
 func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 	params := mux.Vars(req)
 
-	// db, err := gorm.Open("postgres", "host=ip-172-31-6-7.us-west-2.compute.internal:26257 user=janitor_dev dbname=nwhacks sslmode=enable sslcert=/home/ubuntu/certs/janitor_dev.cert sslkey=/home/ubuntu/certs/janitor_dev.key")
-
 	db, err := gorm.Open("postgres", "postgresql://janitor_dev@ip-172-31-6-7.us-west-2.compute.internal:26257/NWHACKS?sslcert=/home/ubuntu/certs/janitor_dev.cert&sslkey=/home/ubuntu/certs/janitor_dev.key")
 	if err != nil {
 		log.Fatalf("error connection to the database: %s", err)
 	}
+	defer db.Close()
 
-	var raw_pat Patient
-	db.Table("patients").Where("id = ?", params["id"]).Find(&raw_pat)
+	var rawPatient Patient
+	db.Table("patients").Where("id = ?", params["id"]).Find(&rawPatient)
 
-	var gen string
-	if raw_pat.Gender == 0 {
-		gen = "M"
-	} else if raw_pat.Gender == 1 {
-		gen = "F"
+	var gender string
+	if rawPatient.Gender == 0 {
+		gender = "M"
+	} else if rawPatient.Gender == 1 {
+		gender = "F"
 	} else {
-		gen = "O"
+		gender = "O"
 	}
 
-	t, err := time.Parse(raw_pat.Dob, "2011-01-19")
+	birthTime, err := time.Parse(rawPatient.Dob, "2011-01-19")
 	birth := &Birth{
-		Month: int(t.Month()),
-		Day:   int(t.Day()),
-		Year:  t.Year(),
+		Month: int(birthTime.Month()),
+		Day:   int(birthTime.Day()),
+		Year:  birthTime.Year(),
 	}
 
-	var emer EmergencyContact
-	var emers []EmergencyContact
+	var contact EmergencyContact
+	var contactList []EmergencyContact
 	// db.Table("nwhacks.patients").Where("id = ?", params["id"]).Find(&pat)
 	// db.Model(&pat).Related(&emer, "EmergencyContact")
 
-	db.Find(&emers)
-	db.Table("NWHACKS.emergency_contacts").Where("pid = ?", raw_pat.Id).Find(&emer)
+	db.Find(&contactList)
+	db.Table("NWHACKS.emergency_contacts").Where("pid = ?", rawPatient.Id).Find(&contact)
 
-	var patient Person
-
-	patient = Person{ID: raw_pat.Id,
+	patient := Person {
+		ID: rawPatient.Id,
 		Information: &Information{
-			Fullname: raw_pat.Name,
-			Gender:   gen,
-			Address:  raw_pat.Address,
+			Fullname: rawPatient.Name,
+			Gender:   gender,
+			Address:  rawPatient.Address,
 			Birth:    birth,
 		},
-		EmergencyContacts: emers,
+		EmergencyContacts: contactList,
 	}
 
-	// // fmt.Printf("%d", item.ID)
-	// // fmt.Printf("%s", pat.Id)
 	json.NewEncoder(w).Encode(patient)
-	// json.NewEncoder(w).Encode(emer)
-	defer db.Close()
-	// json.NewEncoder(w).Encode(patient)
 }
 
 // func CreatePersonEndpoint(w http.ResponseWriter, req *http.Request) {
