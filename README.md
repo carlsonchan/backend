@@ -13,7 +13,7 @@ go get -u github.com/jinzhu/gorm
 go get -u github.com/lib/pq
 ```
 
-Create a configuration file:
+Create a configuration file (which will not be tracked by Git):
 ```
 cp config.json.template config.json
 ```
