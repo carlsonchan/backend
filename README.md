@@ -4,20 +4,19 @@ Golang backend server which manages operations concerning data retrieval and sto
 
 ## Setup
 
-To setup the dependencies, run:
+Setup the dependencies:
 ```
 go get -u github.com/gorilla/mux
 go get -u github.com/jinzhu/gorm
 go get -u github.com/lib/pq
-go install
 ```
 
-To build the server, run:
+Build the server:
 ```
 go build
 ```
 
 Run the built executable:
 ```
-./backend
+./main
 ```
