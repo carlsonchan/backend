@@ -53,15 +53,14 @@ const dbUser string = "janitor_dev"
 const dbIp string = "localhost"
 const dbPort string = "26257"
 
-func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
-	log.Print("Mapped " + req.Method + " " + req.URL.Path)
+var database *gorm.DB
 
-	params := mux.Vars(req)
-
+func InitializeDbConnection() *gorm.DB {
 	const sslCertLocation = "/home/" + osUser +
 		"/cockroach/certs/janitor_dev.cert"
 	const sslKeyLocation = "/home/" + osUser +
 		"/cockroach/certs/janitor_dev.key"
+
 	dbConnection := "postgresql://" + dbUser + "@" + dbIp + ":" + dbPort +
 		"/NWHACKS?sslcert=" + sslCertLocation +
 		"&sslkey=" + sslKeyLocation +
@@ -71,10 +70,16 @@ func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Fatalf("error connection to the database: %s", err)
 	}
-	defer db.Close()
+	return db
+}
+
+func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
+	log.Print("Mapped " + req.Method + " " + req.URL.Path)
+
+	params := mux.Vars(req)
 
 	var rawPatient Patient
-	db.Table("patients").Where("id = ?", params["id"]).Find(&rawPatient)
+	database.Table("patients").Where("id = ?", params["id"]).Find(&rawPatient)
 
 	var gender string
 	if rawPatient.Gender == 0 {
@@ -93,11 +98,11 @@ func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 
 	var contact EmergencyContact
 	var contactList []EmergencyContact
-	// db.Table("nwhacks.patients").Where("id = ?", params["id"]).Find(&pat)
-	// db.Model(&pat).Related(&emer, "EmergencyContact")
+	// database.Table("nwhacks.patients").Where("id = ?", params["id"]).Find(&pat)
+	// database.Model(&pat).Related(&emer, "EmergencyContact")
 
-	db.Find(&contactList)
-	db.Table("NWHACKS.emergency_contacts").Where("pid = ?", rawPatient.Id).Find(&contact)
+	database.Find(&contactList)
+	database.Table("NWHACKS.emergency_contacts").Where("pid = ?", rawPatient.Id).Find(&contact)
 
 	patient := Person{
 		ID: rawPatient.Id,
@@ -114,6 +119,10 @@ func GetPatientEndpoint(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
+
+	database = InitializeDbConnection()
+	defer database.Close()
+
 	router := mux.NewRouter()
 	router.HandleFunc("/patient/{id}", GetPatientEndpoint).Methods("GET")
 
