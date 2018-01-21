@@ -1,5 +1,7 @@
 # Luminescence: Lifeband Backend (nwHacks 2017)
 
+[![Build Status](https://travis-ci.org/nwHacks2017/backend.svg?branch=master)](https://travis-ci.org/nwHacks2017/backend)
+
 Golang backend server which manages operations concerning data retrieval and storage.
 
 ## Setup
