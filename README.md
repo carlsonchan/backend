@@ -5,7 +5,7 @@
 [![Build Status](https://travis-ci.org/nwHacks2017/backend.svg?branch=master)](https://travis-ci.org/nwHacks2017/backend)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/nwHacks2017/backend/blob/master/LICENSE)
 
-Golang backend server which manages operations concerning data retrieval and storage.
+Golang 1.9 backend server which manages operations concerning data retrieval and storage.
 
 ## Setup
 
