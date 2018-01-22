@@ -2,8 +2,8 @@
     "database": {
         "ip": "localhost",
         "port": "26257",
-        "sslCertLocation": "CERT_LOCATION_HERE",
-        "sslKeyLocation": "KEY_LOCATION_HERE",
+        "sslCertLocation": "/home/<USERNAME>/cockroach/certs/client.janitor_dev.crt",
+        "sslKeyLocation": "/home/<USERNAME>/cockroach/certs/client.janitor_dev.key",
         "user": "janitor_dev"
     },
     "port": "8787"

@@ -24,6 +24,11 @@ Create a configuration file (which will not be tracked by Git):
 cp config.json.template config.json
 ```
 
+Or if you are simply running the server locally on the same computer as the database, execute the following command and then add your username into `config.json` to track the certificate file:
+```
+cp config.json.local config.json
+```
+
 Fill in the server port, current user, and database details in `config.json`. You will need to retrieve and store the SSL certificate and key of the database user to connect to.
 
 Build the server:
