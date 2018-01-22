@@ -1,4 +1,6 @@
-# Luminescence: Lifeband Backend (nwHacks 2017)
+# <img src="./img/icon.png" width="40"> LifeBand (nwHacks 2017): Backend
+
+## By Luminescence
 
 [![Build Status](https://travis-ci.org/nwHacks2017/backend.svg?branch=master)](https://travis-ci.org/nwHacks2017/backend)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/nwHacks2017/backend/blob/master/LICENSE)
