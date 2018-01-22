@@ -16,9 +16,7 @@ cd backend/
 
 Setup the dependencies:
 ```
-go get -u github.com/gorilla/mux
-go get -u github.com/jinzhu/gorm
-go get -u github.com/lib/pq
+go get -t ./...
 ```
 
 Create a configuration file (which will not be tracked by Git):
